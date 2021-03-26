@@ -41,7 +41,7 @@ class ItadoriHelpCommand(client: DiscordClient) extends HelpCommand(client.reque
 
           val maxPages = Math.max(Math.ceil(registeredCommands.size / 10D).toInt, 1)
           if (commandSlice.isEmpty) {
-            CreateMessageData(s"Max pages: $maxPages")
+            CreateMessageData(s"ページ数：$maxPages")
           } else {
             val (memberName, _, iconUrl) = Utility.getUserNameIdIcon(message, c)
             CreateMessageData(
@@ -49,10 +49,10 @@ class ItadoriHelpCommand(client: DiscordClient) extends HelpCommand(client.reque
                 OutgoingEmbed(
                   author = Some(OutgoingEmbedAuthor(memberName, iconUrl = Some(iconUrl))),
                   color = Some(0xD6A09A),
-                  description = Some("Here is the list of Itadori's commands."),
+                  description = Some("以下は虎杖のコマンドリスト。"),
                   thumbnail = Utility.getBotThumbnail(c),
                   fields = commandSlice.map(createContent(_)),
-                  footer = Some(OutgoingEmbedFooter(s"Page: $page of $maxPages"))
+                  footer = Some(OutgoingEmbedFooter(s"ページ：$page/$maxPages"))
                 )
               )
             )
@@ -71,9 +71,9 @@ class ItadoriHelpCommand(client: DiscordClient) extends HelpCommand(client.reque
     }
 
     val builder = new StringBuilder
-    builder.append(s"__Name__: ${entry.description.name}\n")
-    builder.append(s"__Description__: ${entry.description.description}\n")
-    builder.append(s"__Usage__: `$invocation ${entry.description.usage}`\n")
+    builder.append(s"__コマンド名__: ${entry.description.name}\n")
+    builder.append(s"__説明__: ${entry.description.description}\n")
+    builder.append(s"__サンプル__: `$invocation ${entry.description.usage}`\n")
 
     EmbedField(entry.description.name, builder.mkString)
   }

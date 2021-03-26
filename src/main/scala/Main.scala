@@ -12,7 +12,7 @@ import scala.util.Random
 object Main {
   def main(args: Array[String]): Unit = {
     val token = System.getenv("TOKEN")
-    val presences = Vector("Demon Hunting", "Cursed Energy", "Divergent Fist", "Black Flash", "Slaughter Demon", "Manga", "Game", "Practising Jujutsu")
+    val presences = Vector("呪霊狩り", "呪力", "逕庭拳", "黒閃", "屠坐魔", "マンガ", "ゲーム", "呪術練習")
     val initialPresence = presences(Random.between(0, presences.length))
     val clientSettings = ClientSettings(token, activity = Some(RawActivity(initialPresence, 0, None, Instant.now(), None, None,
       None, None, None, None, None)), intents = GatewayIntents.All)
