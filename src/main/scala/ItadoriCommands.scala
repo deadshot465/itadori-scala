@@ -1,4 +1,5 @@
 import ackcord.DiscordClient
+import ackcord.commands.MessageParser.RemainingAsString
 import ackcord.commands._
 import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter, OutgoingEmbedThumbnail, Permission}
 import ackcord.requests.{CreateMessage, Requests}
@@ -24,7 +25,7 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
             author = Some(OutgoingEmbedAuthor("呪術廻戦の虎杖悠仁", iconUrl = Some(iconUrl))),
             color = Some(0xD6A09A),
             description = Some("The Land of Cute Boisの虎杖悠仁。\n虎杖はアニメ・マンガ「[呪術廻戦]()」の主人公です。\n虎杖バージョン0.3の開発者：\n**Tetsuki Syu#1250、Kirito#9286**\n制作言語・フレームワーク：\n[Scala](https://www.scala-lang.org/)と[Ackcord](https://ackcord.katsstuff.net/)ライブラリ。"),
-            footer = Some(OutgoingEmbedFooter("虎杖ボット：リリース 0.3.1 | 2021-03-28")),
+            footer = Some(OutgoingEmbedFooter("虎杖ボット：リリース 0.5 | 2021-04-07")),
             thumbnail = Some(OutgoingEmbedThumbnail("https://cdn.discordapp.com/attachments/811517007446671391/813909301365833788/scala-spiral.png"))
         ))}
         .to(requests.sinkIgnore)
@@ -41,14 +42,14 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
       } yield()
     }
 
-  val response: NamedDescribedComplexCommand[String, NotUsed] = ElevatedCommand.namedParser(getPrefix("response"))
+  val response: NamedDescribedComplexCommand[_, NotUsed] = ElevatedCommand.namedParser(getPrefix("response"))
     .described("Response", "虎杖の返事を変更する。")
-    .parsing[String]
+    .parsing(MessageParser[RemainingAsString])
     .withRequest { m =>
-      val prefixWithCmd = "i?response"
-      val actualContent = m.message.content.substring(prefixWithCmd.length + 1).trim.split(" ")
-      val message = actualContent.drop(1).mkString(" ")
-      actualContent(0) match {
+      val split = m.parsed.remaining.split(" ")
+      val cmd = split(0).toLowerCase
+      val message = split.drop(1).mkString(" ")
+      cmd match {
         case "add" =>
           Utility.randomResponses += message
           Utility.writeRandomResponsesToLocal()
