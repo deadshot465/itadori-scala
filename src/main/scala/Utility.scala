@@ -10,7 +10,7 @@ import scala.collection.mutable
 import scala.util.Try
 
 object Utility {
-  var randomResponses: mutable.ListBuffer[String] = mutable.ListBuffer.empty
+  var randomResponses: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty
   private val randomResponsesPath = "assets/random_responses.json"
 
   def getUserAvatarUrl(userId: String, hash: String): String = {
@@ -43,7 +43,7 @@ object Utility {
     println(s"Random responses file path: ${path.toAbsolutePath}")
     val fileContent = Files.readString(path, Charset.forName("UTF-8"))
     val document = parse(fileContent).getOrElse(Json.Null)
-    randomResponses = document.as[mutable.ListBuffer[String]].getOrElse(mutable.ListBuffer.empty)
+    randomResponses = document.as[mutable.ArrayBuffer[String]].getOrElse(mutable.ArrayBuffer.empty)
   }
 
   def writeRandomResponsesToLocal(): Unit = {

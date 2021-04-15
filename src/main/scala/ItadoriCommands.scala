@@ -5,9 +5,14 @@ import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter, Ou
 import ackcord.requests.{CreateMessage, Requests}
 import ackcord.syntax.TextChannelSyntax
 import akka.NotUsed
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.Flow
+import io.circe.syntax.EncoderOps
 
+import java.nio.charset.Charset
 import java.time.temporal.ChronoUnit
+import java.util.Base64
 import scala.concurrent.Future
 
 class ItadoriCommands(client: DiscordClient, requests: Requests) extends CommandController(requests) {
@@ -30,6 +35,29 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
         ))}
         .to(requests.sinkIgnore)
     }
+
+  val eval = Command.namedParser(getPrefix("eval"))
+    .described("Eval", "Scalaコードを解釈します。")
+    .parsing(MessageParser[RemainingAsString])
+    .asyncOpt { implicit m =>
+      val code = m.parsed.remaining.split("\n")
+      val actualCode = code.slice(1, code.length - 2).mkString("; ")
+      val requestData = RapidAPI.RequestData(
+        RapidAPI.scalaLangID,
+        Base64.getEncoder.encodeToString(actualCode.getBytes(Charset.forName("UTF-8")))
+      ).asJson.toString()
+
+      for {
+        request <- HttpRequest(
+          method = HttpMethods.POST,
+          uri = RapidAPI.submissionUrl,
+          headers = RapidAPI.generateAuthHeader("judge0-ce.p.rapidapi.com"),
+          entity = HttpEntity(ContentTypes.`application/json`, requestData)
+        )
+        response <- http.single
+      }
+    }
+
 
   val ping: NamedDescribedComplexCommand[NotUsed, NotUsed] = Command.namedParser(getPrefix("ping"))
     .described("Ping", "レイテンシを返す。")
