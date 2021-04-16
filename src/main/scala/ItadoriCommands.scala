@@ -5,15 +5,21 @@ import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter, Ou
 import ackcord.requests.{CreateMessage, Requests}
 import ackcord.syntax.TextChannelSyntax
 import akka.NotUsed
+import akka.actor.typed.ActorSystem
+import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.Flow
+import io.circe._
+import io.circe.parser._
 import io.circe.syntax.EncoderOps
 
 import java.nio.charset.Charset
 import java.time.temporal.ChronoUnit
 import java.util.Base64
+import scala.collection.immutable.HashMap
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 class ItadoriCommands(client: DiscordClient, requests: Requests) extends CommandController(requests) {
   private val ElevatedCommand = GuildCommand.andThen(
@@ -47,15 +53,37 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
         Base64.getEncoder.encodeToString(actualCode.getBytes(Charset.forName("UTF-8")))
       ).asJson.toString()
 
-      for {
-        request <- HttpRequest(
-          method = HttpMethods.POST,
-          uri = RapidAPI.submissionUrl,
-          headers = RapidAPI.generateAuthHeader("judge0-ce.p.rapidapi.com"),
-          entity = HttpEntity(ContentTypes.`application/json`, requestData)
-        )
-        response <- http.single
+      var request = HttpRequest(
+        method = HttpMethods.POST,
+        uri = RapidAPI.submissionUrl,
+        headers = RapidAPI.generateAuthHeader("judge0-ce.p.rapidapi.com"),
+        entity = HttpEntity(ContentTypes.`application/json`, requestData)
+      )
+
+      implicit val system: ActorSystem[Nothing] = client.system
+
+      Http().singleRequest(request).onComplete {
+        case Success(value) =>
+          var stringData: String = ""
+          Unmarshal(value.entity).to[String].onComplete {
+            case Success(v) => stringData = v
+            case Failure(e) =>
+              println(s"Error occurred when sending the request: ${e.getMessage}")
+              stringData = e.getMessage
+          }
+          val responseData = parse(stringData)
+          .getOrElse(Json.Null)
+          .as[HashMap[String, String]]
+          .getOrElse(HashMap.empty)
+          val token = new String(Base64.getDecoder.decode(responseData("token")), Charset.forName("UTF-8"))
+          println(token)
       }
+
+      import requestHelper._
+
+      for {
+        _ <- run(m.textChannel.sendMessage("Request received!"))
+      } yield()
     }
 
 
