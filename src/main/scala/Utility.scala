@@ -10,6 +10,8 @@ import scala.collection.mutable
 import scala.util.Try
 
 object Utility {
+  val itadoriColor = 0xD6A09A
+  val scalaLogo = "https://cdn.discordapp.com/attachments/811517007446671391/813909301365833788/scala-spiral.png"
   var randomResponses: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty
   private val randomResponsesPath = "assets/random_responses.json"
 
