@@ -1,6 +1,6 @@
 name := "Itadori"
 
-version := "0.6"
+version := "0.6.1"
 val circeVersion = "0.12.3"
 
 scalaVersion := "2.13.5"

@@ -66,9 +66,12 @@ object RapidAPI {
                 val decoded = Base64.getDecoder.decode(
                   value.compile_output.get.trim.replaceAll("\n", "")
                 )
-                val output = new String(decoded)
+                var output = new String(decoded)
+                if (output.length > 2047) {
+                  output = output.substring(0, 2000)
+                }
                 Future.successful(CreateMessage
-                .mkContent(channelId, s"わるい。俺がこれをコンパイルできなかった。これはエラーのメッセージだ。もしよかったら：${output.substring(0, 2050)}"))
+                .mkContent(channelId, s"わるい。俺がこれをコンパイルできなかった。これはエラーのメッセージだ。もしよかったら：$output"))
               } else {
                 getResult(request, channelId, authorName, iconUrl)
               }
