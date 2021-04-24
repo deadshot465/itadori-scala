@@ -35,14 +35,14 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
           CreateMessage.mkEmbed(m.message.channelId, OutgoingEmbed(
             author = Some(OutgoingEmbedAuthor("呪術廻戦の虎杖悠仁", iconUrl = Some(iconUrl))),
             color = Some(Utility.itadoriColor),
-            description = Some("The Land of Cute Boisの虎杖悠仁。\n虎杖はアニメ・マンガ「[呪術廻戦]()」の主人公です。\n虎杖バージョン0.6.1の開発者：\n**Tetsuki Syu#1250、Kirito#9286**\n制作言語・フレームワーク：\n[Scala](https://www.scala-lang.org/)と[Ackcord](https://ackcord.katsstuff.net/)ライブラリ。"),
-            footer = Some(OutgoingEmbedFooter("虎杖ボット：リリース 0.6.1 | 2021-04-17")),
+            description = Some("The Land of Cute Boisの虎杖悠仁。\n虎杖はアニメ・マンガ「[呪術廻戦]()」の主人公です。\n虎杖バージョン0.6.2の開発者：\n**Tetsuki Syu#1250、Kirito#9286**\n制作言語・フレームワーク：\n[Scala](https://www.scala-lang.org/)と[Ackcord](https://ackcord.katsstuff.net/)ライブラリ。"),
+            footer = Some(OutgoingEmbedFooter("虎杖ボット：リリース 0.6.2 | 2021-04-25")),
             thumbnail = Some(OutgoingEmbedThumbnail(Utility.scalaLogo))
         ))}
         .to(requests.sinkIgnore)
     }
 
-  val eval = Command.namedParser(getPrefix("eval"))
+  val eval: NamedDescribedComplexCommand[RemainingAsString, NotUsed] = Command.namedParser(getPrefix("eval"))
     .described("Eval", "Scalaコードを解釈します。")
     .parsing(MessageParser[RemainingAsString])
     .asyncOpt { implicit m =>

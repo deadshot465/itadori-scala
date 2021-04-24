@@ -55,9 +55,15 @@ object RapidAPI {
           Future.successful(CreateMessage.mkContent(channelId, s"何かエラーが発生していたらしいな：${value.getMessage()}"))
         case Right(value) =>
           if (value.stderr.isDefined && value.stderr.get != "") {
-            var message = s"何かエラーが発生していたらしいな：${value.stderr.get}"
+            val stderr = Base64.getDecoder.decode(
+              value.stderr.get.trim.replaceAll("\n", "")
+            )
+            var message = s"何かエラーが発生していたらしいな：${new String(stderr)}"
             if (value.message.isDefined && value.message.get != "") {
-              message += s"\nちなみにこれは他のメッセージだ：${value.message.get}"
+              val msg = Base64.getDecoder.decode(
+                value.message.get.trim.replaceAll("\n", "")
+              )
+              message += s"\nちなみにこれは他のメッセージだ：${new String(msg)}"
             }
             Future.successful(CreateMessage.mkContent(channelId, message))
           } else {
