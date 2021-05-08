@@ -53,6 +53,7 @@ object Main {
           itadoriCommands.ping,
           itadoriCommands.about,
           itadoriCommands.eval,
+          itadoriCommands.owoify,
           itadoriCommands.response)
         client.login()
       }

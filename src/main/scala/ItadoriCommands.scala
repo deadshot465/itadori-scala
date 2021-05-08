@@ -13,6 +13,7 @@ import akka.stream.scaladsl.Flow
 import io.circe._
 import io.circe.parser._
 import io.circe.syntax.EncoderOps
+import io.github.deadshot465.owoify.{Owoifier, OwoifyLevel}
 
 import java.nio.charset.Charset
 import java.time.temporal.ChronoUnit
@@ -35,8 +36,8 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
           CreateMessage.mkEmbed(m.message.channelId, OutgoingEmbed(
             author = Some(OutgoingEmbedAuthor("呪術廻戦の虎杖悠仁", iconUrl = Some(iconUrl))),
             color = Some(Utility.itadoriColor),
-            description = Some("The Land of Cute Boisの虎杖悠仁。\n虎杖はアニメ・マンガ「[呪術廻戦]()」の主人公です。\n虎杖バージョン0.6.2の開発者：\n**Tetsuki Syu#1250、Kirito#9286**\n制作言語・フレームワーク：\n[Scala](https://www.scala-lang.org/)と[Ackcord](https://ackcord.katsstuff.net/)ライブラリ。"),
-            footer = Some(OutgoingEmbedFooter("虎杖ボット：リリース 0.6.2 | 2021-04-25")),
+            description = Some("The Land of Cute Boisの虎杖悠仁。\n虎杖はアニメ・マンガ「[呪術廻戦]()」の主人公です。\n虎杖バージョン0.7.0の開発者：\n**Tetsuki Syu#1250、Kirito#9286**\n制作言語・フレームワーク：\n[Scala](https://www.scala-lang.org/)と[Ackcord](https://ackcord.katsstuff.net/)ライブラリ。"),
+            footer = Some(OutgoingEmbedFooter("虎杖ボット：リリース 0.7.0 | 2021-05-09")),
             thumbnail = Some(OutgoingEmbedThumbnail(Utility.scalaLogo))
         ))}
         .to(requests.sinkIgnore)
@@ -96,6 +97,31 @@ class ItadoriCommands(client: DiscordClient, requests: Requests) extends Command
 
       for {
         _ <- run(m.textChannel.sendMessage("リクエスト取ったよ！ちょっと待ってくれ…"))
+      } yield()
+    }
+
+  val owoify: NamedDescribedComplexCommand[RemainingAsString, NotUsed] = Command.namedParser(getPrefix("owoify"))
+    .described("Owoify", "文字列を赤ちゃんが言いそうな言葉に変換する。")
+    .parsing(MessageParser[RemainingAsString])
+    .asyncOpt { implicit m =>
+      val split = m.parsed.remaining.split(" ")
+      val firstWord = split(0)
+      val level = firstWord.toLowerCase match {
+        case "soft" => OwoifyLevel.Owo
+        case "medium" => OwoifyLevel.Uwu
+        case "hard" => OwoifyLevel.Uvu
+        case _ => OwoifyLevel.Owo
+      }
+      val text = if (level == OwoifyLevel.Owo && firstWord.toLowerCase != "soft") {
+        split.mkString(" ")
+      } else {
+        split.drop(1).mkString(" ")
+      }
+      val result = Owoifier.INSTANCE.owoify(text, level)
+
+      import requestHelper._
+      for {
+        _ <- run(m.textChannel.sendMessage(result))
       } yield()
     }
 

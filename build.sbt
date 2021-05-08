@@ -1,6 +1,6 @@
 name := "Itadori"
 
-version := "0.6.2"
+version := "0.7.0"
 val circeVersion = "0.12.3"
 
 scalaVersion := "2.13.5"
@@ -10,6 +10,7 @@ lazy val akkaHttpVersion = "10.2.4"
 
 resolvers += Resolver.JCenterRepository
 libraryDependencies += "net.katsstuff" %% "ackcord" % "0.17.1"
+libraryDependencies += "io.github.deadshot465" % "owoifyKt" % "1.0"
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",
   "io.circe" %% "circe-generic",
